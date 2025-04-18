@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h2 class="text-xl font-semibold text-gray-900 sm:text-2xl ml-20 mt-20">{{ collection.name }}</h2>
+    <h2 class="text-xl font-semibold text-gray-900 sm:text-2xl ml-20 mt-20 dark:text-white">{{ collection.name }}</h2>
 		<div class="grid grid-cols-5 place-items-center gap-4 mx-20 mt-20">
-			<SkinsSkin v-for="c in uniqueSkins().sort()" :key="c.id" :name="c.name" :id="c.id" :image="c.img_url" :color="c.color"/>
+			<SkinsSkin v-for="c in uniqueSkins().sort()" :key="c.id" :name="c.name" :id="c.id" :image="c.img_url" :color="c.color" :price="c.sell_price_text"/>
 		</div>
   </div>
 </template>
@@ -11,6 +11,7 @@
 const route = useRoute();
 const supabase = useSupabaseClient()
 const id = route.params.id;
+
 const {data: collection} = await supabase
 	.from('collections')
 	.select('name')
@@ -19,8 +20,10 @@ const {data: collection} = await supabase
 
 let { data } = await supabase
 	.from('skin')
-	.select('name, id, img_url, rarityId')
-	.eq('collectionId', route.params.id) 
+	.select('name, id, img_url, rarityId, sell_price_text')
+	.eq('collectionId', route.params.id)
+
+console.log(data)
 
 
 let { data: rarity } = await supabase
@@ -34,6 +37,7 @@ const uniqueSkins = () => {
 			uniqueNames.add(skin.name);
 			return true;
 		}
+		console.log(skin)
 		return false;
 	});
 	return filteredSkins.map(skin => {
@@ -50,9 +54,11 @@ const uniqueSkins = () => {
 			skin.color = '#d32ce6';
 		} else if (skin.rarity === 6) {
 			skin.color = '#eb4b4b';
+		} else {
+			skin.color = '#000000';
 		}
 		return skin;	
-	}).sort((a, b) => b.rarity - a.rarity); // Sort by rarity in descending order
+	}).sort((a, b) => b.rarity - a.rarity);
 };
 
 </script>
